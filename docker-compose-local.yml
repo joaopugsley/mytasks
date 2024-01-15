@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  database:
+    image: mysql:5.7
+    restart: always
+    env_file:
+      - ./.env.local
+    networks:
+      - mytasks
+    ports:
+      - 3306:3306
+    volumes:
+      - local_mytasks_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: local.Dockerfile
+    restart: always
+    env_file:
+      - ./.env.local
+    networks:
+      - mytasks
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+    links:
+      - database:database
+    volumes:
+      - ./backend:/app
+      - ./.env.local:/app/.env.local
+    entrypoint:
+      [
+        "npm",
+        "run",
+        "migrate:dev",
+      ]
+
+networks:
+  mytasks:
+    driver: bridge
+
+volumes:
+  local_mytasks_data:
+    external: true
