@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { compare, genSalt, hash } from 'bcrypt';
+import { compare, genSalt, hash } from 'bcryptjs';
 import { createHash, randomBytes } from 'crypto';
 import { StringDecoder } from 'string_decoder';
 
