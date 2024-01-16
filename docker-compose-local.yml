@@ -1,19 +1,20 @@
-version: '3.8'
+version: '3.7'
 
 services:
-  database:
-    image: mysql:5.7
+  mysql:
+    image: mysql:8.1
     restart: always
+    container_name: database
     env_file:
-      - ./.env.local
-    networks:
-      - mytasks
-    ports:
-      - 3306:3306
+      - .env.local
     volumes:
       - local_mytasks_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - mytasks
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      test: ["CMD", "mysql", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}", "--execute", "SHOW DATABASES;"]
       interval: 2s
       timeout: 5s
       retries: 10
@@ -22,21 +23,20 @@ services:
     build:
       context: ./backend
       dockerfile: local.Dockerfile
-    restart: always
     env_file:
-      - ./.env.local
+      - .env.local
     networks:
       - mytasks
     ports:
       - "5000:5000"
     depends_on:
-      database:
+      mysql:
         condition: service_healthy
     links:
-      - database:database
+      - mysql:mysql
     volumes:
       - ./backend:/app
-      - ./.env.local:/app/.env.local
+      - .env.local:/app/.env.local
     entrypoint:
       [
         "npm",
