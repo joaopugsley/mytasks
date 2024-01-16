@@ -1,6 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@common/services/prisma/prisma.service';
 import { CreateUserDTO } from './dto/CreateUserDTO';
+import { ActivateUserDTO } from './dto/ActivateUserDTO';
 import { CryptoService } from '@common/services/crypto/crypto.service';
 import { EmailService } from '@common/services/email/email.service';
 
@@ -89,5 +94,43 @@ export class UserService {
 
     // return the created user id
     return createdUser.id;
+  }
+
+  async activateUser(data: ActivateUserDTO) {
+    // remove blankspaces at the start or end
+    const activationKey = data.activation_key.trim();
+
+    // query for key matches
+    const key = await this.prisma.activation_key.findFirst({
+      where: {
+        activation_key: activationKey,
+      },
+    });
+
+    // throw no found if key doesnt exists
+    if (!key) {
+      throw new NotFoundException(
+        'Activation Key not found or already activated.',
+      );
+    }
+
+    // activate the user and remove the activation key
+    await this.prisma.$transaction(async (prisma) => {
+      // activate the user
+      await prisma.user.update({
+        where: {
+          id: key.user_id,
+        },
+        data: {
+          active: true,
+        },
+      });
+      // remove the key
+      await prisma.activation_key.deleteMany({
+        where: {
+          activation_key: key.activation_key,
+        },
+      });
+    });
   }
 }
