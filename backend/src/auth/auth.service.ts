@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '@common/services/prisma/prisma.service';
 import { CryptoService } from '@common/services/crypto/crypto.service';
 import { JwtService } from '@nestjs/jwt';
@@ -26,15 +26,15 @@ export class AuthService {
       },
     });
 
-    // throw unauthorized if user doesnt exists
+    // throw BadRequest if user doesnt exists
     if (!user) {
       // we gonna use this message for almost all verifications as it is a authflow good practice for security reasons
-      throw new UnauthorizedException('Invalid username or password');
+      throw new BadRequestException('Invalid username or password');
     }
 
-    // throw unauthorized with custom message if the user is not activated
+    // throw BadRequest with custom message if the user is not activated
     if (!user.active) {
-      throw new UnauthorizedException(
+      throw new BadRequestException(
         'You should activate your account before login',
       );
     }
@@ -45,7 +45,7 @@ export class AuthService {
 
     // compare password
     if (!(await this.crypto.compareBcrypt(password, user.password))) {
-      throw new UnauthorizedException('Invalid username or password');
+      throw new BadRequestException('Invalid username or password');
     }
 
     // create payload
