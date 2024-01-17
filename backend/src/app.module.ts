@@ -4,6 +4,7 @@ import { PrismaModule } from '@common/services/prisma/prisma.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from '@users/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { UserModule } from '@users/user.module';
     CryptoModule,
     EmailModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
