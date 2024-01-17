@@ -3,6 +3,7 @@ import { PrismaService } from '@common/services/prisma/prisma.service';
 import { CryptoService } from '@common/services/crypto/crypto.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginUserDTO } from './dto/LoginUserDTO';
+import { JwtPayload } from './types/JwtPayload.type';
 
 @Injectable()
 export class AuthService {
@@ -49,10 +50,10 @@ export class AuthService {
     }
 
     // create payload
-    const payload = {
+    const payload: JwtPayload = {
       username: user.username,
       nickname: user.nickname,
-      subject: user.id,
+      id: user.id,
     };
 
     // generate jwt token
