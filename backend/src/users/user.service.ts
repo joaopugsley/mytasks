@@ -17,7 +17,7 @@ export class UserService {
     private email: EmailService,
   ) {}
 
-  async createUser(data: CreateUserDTO): Promise<number> {
+  async createUser(data: CreateUserDTO) {
     // remove blankspaces at the start or end
     let username = data.username.trim();
 
@@ -93,7 +93,9 @@ export class UserService {
     }
 
     // return the created user id
-    return createdUser.id;
+    return {
+      user_id: createdUser.id,
+    };
   }
 
   async activateUser(data: ActivateUserDTO) {
@@ -132,5 +134,9 @@ export class UserService {
         },
       });
     });
+
+    return {
+      success: true,
+    };
   }
 }
