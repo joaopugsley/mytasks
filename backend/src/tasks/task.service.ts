@@ -8,10 +8,50 @@ import { PrismaService } from '@common/services/prisma/prisma.service';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { JwtPayload } from '@auth/types/JwtPayload.type';
 import { UpdateTaskDTO } from './dto/UpdateTaskDTO';
+import { FilterTaskDTO } from './dto/FilterTaskDTO';
+import { TaskFilter } from './types/TaskFilter.type';
 
 @Injectable()
 export class TaskService {
   constructor(private prisma: PrismaService) {}
+
+  async getTasks(data: FilterTaskDTO, userData: JwtPayload) {
+    // setup filter
+    const filter: TaskFilter = {};
+
+    if (data.title) {
+      filter.title = {
+        contains: data.title,
+      };
+    }
+
+    if (data.status) {
+      filter.status = data.status;
+    }
+
+    // query for user tasks
+    const tasks = await this.prisma.task.findMany({
+      where: {
+        user_id: userData.id,
+        ...filter,
+      },
+    });
+
+    // paginate-it
+    const page = Number(data.page); // current page
+    const pageAmount = Number(data.amount); // amount per page
+    const startIndex = (page - 1) * pageAmount; // start index
+    const endIndex = startIndex + pageAmount; // end index
+
+    const pageItems = tasks.slice(startIndex, endIndex);
+
+    // return data
+    return {
+      page: page,
+      total: Math.ceil(tasks.length / pageAmount),
+      items: pageItems,
+    };
+  }
 
   async createTask(data: CreateTaskDTO, userData: JwtPayload) {
     // remove blankspaces at the start or end of the title

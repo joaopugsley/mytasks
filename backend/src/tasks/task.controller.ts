@@ -1,14 +1,30 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { RequireAuth } from '@auth/decorators/auth.decorator';
 import { TaskService } from './task.service';
 import { User } from '@auth/decorators/user.decorator';
 import { JwtPayload } from '@auth/types/JwtPayload.type';
 import { UpdateTaskDTO } from './dto/UpdateTaskDTO';
+import { FilterTaskDTO } from './dto/FilterTaskDTO';
 
 @Controller('api/tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
+
+  @Get('/')
+  @RequireAuth()
+  async getTasks(@Query() data: FilterTaskDTO, @User() user: JwtPayload) {
+    const result = await this.taskService.getTasks(data, user);
+    return result;
+  }
 
   @Post('/')
   @RequireAuth()
