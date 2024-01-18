@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Patch,
+  Delete,
   Post,
   Query,
 } from '@nestjs/common';
@@ -41,6 +42,13 @@ export class TaskController {
     @User() user: JwtPayload,
   ) {
     const result = await this.taskService.updateTask(id, data, user);
+    return result;
+  }
+
+  @Delete('/:id')
+  @RequireAuth()
+  async deleteTask(@Param('id') id: number, @User() user: JwtPayload) {
+    const result = await this.taskService.deleteTask(id, user);
     return result;
   }
 }

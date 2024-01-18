@@ -131,4 +131,30 @@ export class TaskService {
       );
     }
   }
+
+  async deleteTask(id: number, userData: JwtPayload) {
+    // query for the task
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: id,
+        user_id: userData.id,
+      },
+    });
+
+    // throw 'NotFound' cuz task doesnt exists
+    if (!task) {
+      throw new NotFoundException(`Task not found`);
+    }
+
+    // delete the task
+    await this.prisma.task.delete({
+      where: {
+        id: task.id,
+      },
+    });
+
+    return {
+      success: true,
+    };
+  }
 }
