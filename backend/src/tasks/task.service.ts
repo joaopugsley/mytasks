@@ -10,10 +10,14 @@ import { JwtPayload } from '@auth/types/JwtPayload.type';
 import { UpdateTaskDTO } from './dto/UpdateTaskDTO';
 import { FilterTaskDTO } from './dto/FilterTaskDTO';
 import { TaskFilter } from './types/TaskFilter.type';
+import { LoggerService } from '@common/services/logger/logger.service';
 
 @Injectable()
 export class TaskService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private logger: LoggerService,
+  ) {}
 
   async getTasks(data: FilterTaskDTO, userData: JwtPayload) {
     // setup filter
@@ -72,7 +76,7 @@ export class TaskService {
       throw new UnauthorizedException();
     }
 
-    //try create task
+    // try create task
     try {
       const task = await this.prisma.task.create({
         data: {
@@ -81,6 +85,16 @@ export class TaskService {
           user_id: user.id,
         },
       });
+
+      // log new task
+      this.logger.log(
+        userData.id,
+        task.id,
+        'created',
+        `User ${userData.id} created new task ${task.id}, with title: ${title}`,
+      );
+
+      // return success
       return {
         success: true,
         task: task.id,
@@ -122,6 +136,19 @@ export class TaskService {
         },
       });
 
+      // log task update
+      this.logger.log(
+        userData.id,
+        task.id,
+        'updated',
+        `User ${userData.id} updated task ${task.id}`,
+        {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+        },
+      );
+
       return {
         success: true,
       };
@@ -146,15 +173,29 @@ export class TaskService {
       throw new NotFoundException(`Task not found`);
     }
 
-    // delete the task
-    await this.prisma.task.delete({
-      where: {
-        id: task.id,
-      },
-    });
+    // try delete the task
+    try {
+      await this.prisma.task.delete({
+        where: {
+          id: task.id,
+        },
+      });
 
-    return {
-      success: true,
-    };
+      // log new task
+      this.logger.log(
+        userData.id,
+        task.id,
+        'deleted',
+        `User ${userData.id} deleted task ${task.id}`,
+      );
+
+      return {
+        success: true,
+      };
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'An error occurred while deleting the task, try again later',
+      );
+    }
   }
 }
