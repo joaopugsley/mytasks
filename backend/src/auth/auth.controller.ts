@@ -8,7 +8,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  async createUser(@Body() data: LoginUserDTO) {
+  async loginUser(@Body() data: LoginUserDTO) {
     const result = await this.authService.login(data);
     return result;
   }
