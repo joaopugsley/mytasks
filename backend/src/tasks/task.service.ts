@@ -68,7 +68,7 @@ export class TaskService {
 
     // update the task with the new data from UpdateTaskDTO
     try {
-      const updatedTask = await this.prisma.task.update({
+      await this.prisma.task.update({
         where: {
           id: id,
         },
