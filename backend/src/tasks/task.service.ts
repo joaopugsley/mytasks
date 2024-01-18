@@ -1,11 +1,13 @@
 import {
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '@common/services/prisma/prisma.service';
 import { CreateTaskDTO } from './dto/CreateTaskDTO';
 import { JwtPayload } from '@auth/types/JwtPayload.type';
+import { UpdateTaskDTO } from './dto/UpdateTaskDTO';
 
 @Injectable()
 export class TaskService {
@@ -45,7 +47,47 @@ export class TaskService {
       };
     } catch (err) {
       throw new InternalServerErrorException(
-        'An error while creating your task occurred, try again later',
+        'An error occurred while creating your task, try again later',
+      );
+    }
+  }
+
+  async updateTask(id: number, data: UpdateTaskDTO, userData: JwtPayload) {
+    // query for the task
+    const task = await this.prisma.task.findFirst({
+      where: {
+        id: id,
+        user_id: userData.id,
+      },
+    });
+
+    // throw 'NotFound' cuz task doesnt exists
+    if (!task) {
+      throw new NotFoundException(`Task not found`);
+    }
+
+    // update the task with the new data from UpdateTaskDTO
+    try {
+      const updatedTask = await this.prisma.task.update({
+        where: {
+          id: id,
+        },
+        data: {
+          title: data.title !== undefined ? data.title.trim() : task.title,
+          description:
+            data.description !== undefined // if data.description is NOT undefined
+              ? data.description.trim() // set it to data.description
+              : task.description, // otherwise, maintain the current value
+          status: data.status !== undefined ? data.status : task.status,
+        },
+      });
+
+      return {
+        success: true,
+      };
+    } catch (err) {
+      throw new InternalServerErrorException(
+        'An error occurred while updating the task, try again later',
       );
     }
   }
