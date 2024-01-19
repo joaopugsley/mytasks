@@ -44,6 +44,26 @@ services:
         "migrate:dev",
       ]
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: local.Dockerfile
+    env_file:
+      - .env.local
+    networks:
+      - mytasks
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - .env.local:/app/.env.local
+    entrypoint:
+      [
+        "npm",
+        "run",
+        "dev",
+      ]
+
 networks:
   mytasks:
     driver: bridge
