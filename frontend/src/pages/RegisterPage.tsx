@@ -5,23 +5,12 @@ import { Button } from "../components/Button/Button";
 import { AxiosError } from "axios";
 import { api } from "../services/api";
 import { useAuth } from "../contexts/auth";
+import { extractNestErrorMessage } from "../utils/extractNestErrorMessage";
 
 type RegisterAPIResponse = {
   user_id: number;
   success: boolean;
   message: string;
-}
-
-type NestValidationError = {
-  data: {
-    message: string[];
-  }
-}
-
-type NestResponseError = {
-  data: {
-    message: string;
-  }
 }
 
 const RegisterPage = () => {
@@ -55,20 +44,10 @@ const RegisterPage = () => {
         setMessage(response.data.message);
       }
     } catch(err) {
-      setSuccess(false);
       const e = err as AxiosError;
-      if(e.response && e.response.status === 400 && e.response.data) {
-        // nest validation error
-        const error = e.response as NestValidationError;
-        setMessage(error.data.message[0]);
-      } else if(e.response && e.response.data) {
-        // nest response error
-        const error = e.response as NestResponseError;
-        setMessage(error.data.message);
-      } else {
-        // unknowed errors
-        setMessage('An internal error occurred, try again later.')
-      }
+      const errorMessage = extractNestErrorMessage(e);
+      setSuccess(false);
+      setMessage(errorMessage);
     } finally {
       // stop loading
       setLoading(false);
