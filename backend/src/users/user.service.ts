@@ -95,6 +95,10 @@ export class UserService {
     // return the created user id
     return {
       user_id: createdUser.id,
+      success: true,
+      message: shouldActivate
+        ? 'Your account has been created successfully. Please check your email to activate your account.'
+        : 'Your account has been created successfully. Welcome to MyTasks!',
     };
   }
 
