@@ -33,13 +33,6 @@ export class AuthService {
       throw new BadRequestException('Invalid username or password');
     }
 
-    // throw BadRequest with custom message if the user is not activated
-    if (!user.active) {
-      throw new BadRequestException(
-        'You should activate your account before login',
-      );
-    }
-
     // hash password before compare
     let password = this.crypto.hashMD5(data.password).toUpperCase();
     password = this.crypto.getLoginHash(password, process.env.STATIC_KEY);
@@ -47,6 +40,13 @@ export class AuthService {
     // compare password
     if (!(await this.crypto.compareBcrypt(password, user.password))) {
       throw new BadRequestException('Invalid username or password');
+    }
+
+    // throw BadRequest with custom message if the user is not activated
+    if (!user.active) {
+      throw new BadRequestException(
+        'You should activate your account before login',
+      );
     }
 
     // create payload
