@@ -5,7 +5,7 @@ const HomePage = () => {
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="flex flex-col items-center justify-center w-screen h-screen bg-white">
+    <main className="flex flex-col items-center justify-center w-screen h-screen bg-white">
       <h1 className="text-4xl font-bold mb-3 text-center">Welcome to MyTasks</h1>
       <p className="text-lg text-gray-700 mb-5">
         Your personal task manager
@@ -16,7 +16,7 @@ const HomePage = () => {
       >
         Get Started
       </Link>
-    </div>
+    </main>
   );
 };
 
