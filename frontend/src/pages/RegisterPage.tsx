@@ -1,9 +1,10 @@
-import { FormEvent, useState } from "react";
-import { Link } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { GoEye, GoEyeClosed } from "react-icons/go";
 import { Button } from "../components/Button/Button";
 import { AxiosError } from "axios";
 import { api } from "../services/api";
+import { useAuth } from "../contexts/auth";
 
 type RegisterAPIResponse = {
   user_id: number;
@@ -24,6 +25,8 @@ type NestResponseError = {
 }
 
 const RegisterPage = () => {
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -34,7 +37,6 @@ const RegisterPage = () => {
   const [success, setSuccess] = useState<boolean>(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.stopPropagation();
     e.preventDefault();
     // hide password
     setDisplayPassword(false);
@@ -67,10 +69,18 @@ const RegisterPage = () => {
         // unknowed errors
         setMessage('An internal error occurred, try again later.')
       }
+    } finally {
+      // stop loading
+      setLoading(false);
     }
-    // stop loading
-    setLoading(false);
   }
+
+  useEffect(() => {
+    // redirect user to /tasks page
+    if (isAuthenticated) {
+      navigate('/tasks', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <main className="flex flex-col items-center justify-center max-w-full h-screen bg-white">
