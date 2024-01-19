@@ -1,10 +1,10 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { api } from "../services/api";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import Cookies from "js-cookie";
 
 type AuthContextData = {
-  signIn: (username: string, password: string) => void;
+  signIn: (username: string, password: string) => Promise<void>;
   signOut: () => void;
   isAuthenticated: boolean;
 }
@@ -26,9 +26,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
-  const signIn = async (username: string, password: string): Promise<void> => {
+  const signIn = async (username: string, password: string) => {
     try {
-      const response = await api.post<AuthResponse>('/auth/login', {
+      const response = await api.post<AuthResponse>('/api/auth/login', {
         username,
         password,
       });
@@ -47,16 +47,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // set authenticated
       setAuthenticated(true);
     } catch(err) {
-      const e = err as AxiosError;
-      if (e.response) {
-        console.error(e.response);
-      }
       // set not authenticated
       setAuthenticated(false);
+      // re-throw err
+      throw err;
     }
   }
 
-  const signOut = async (): Promise<void> => {
+  const signOut = () => {
     Cookies.remove('access_token');
     setAuthenticated(false);
   }
