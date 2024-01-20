@@ -1,4 +1,4 @@
-import { IsString, Length, MaxLength } from 'class-validator';
+import { IsOptional, IsString, Length, MaxLength } from 'class-validator';
 
 export class CreateTaskDTO {
   @IsString({ message: 'Title must be a string' })
@@ -11,5 +11,6 @@ export class CreateTaskDTO {
   @MaxLength(255, {
     message: 'Description length must be lower than 255 characters',
   })
-  description: string;
+  @IsOptional()
+  description?: string;
 }
