@@ -8,7 +8,7 @@ export class FilterTaskDTO {
 
   @IsEnum(TaskStatus, {
     message:
-      'Status should be one of the following: Pending, InProgress, Completed, Archived',
+      'Status should be one of the following: Pending, InProgress, Completed',
   })
   @IsOptional()
   status?: TaskStatus;

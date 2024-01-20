@@ -40,7 +40,6 @@ enum TaskStatus {
   Pending
   InProgress
   Completed
-  Archived
 }
 
 model task {
