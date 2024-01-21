@@ -28,7 +28,6 @@ type LoadTasksAPIResponse = {
   items: Task[];
 }
 
-
 export const TaskContext = createContext({} as TaskContextData)
 
 export const TaskProvider = ({ children }: { children: ReactNode }) => {
@@ -66,6 +65,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       await loadTasks();
     } catch(error) {
       console.error('Error creating task:', error);
+      const err = error as AxiosError;
+      if(err.response && err.response.status == 401) {
+        signOut();
+      }
     }
   };
 
@@ -77,6 +80,10 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
       await loadTasks();
     } catch(error) {
       console.error('Error updating task:', error);
+      const err = error as AxiosError;
+      if(err.response && err.response.status == 401) {
+        signOut();
+      }
     }
   }
 
