@@ -1,0 +1,1 @@
+export const PAGE_ITEMS: number = 5;
