@@ -6,13 +6,15 @@ import { StatusColor } from "../../types/StatusColor.enum";
 import { Task } from "../../types/Task.type";
 import { useState } from "react";
 import { IoIosAddCircleOutline } from "react-icons/io";
+import { BsTrash } from "react-icons/bs";
 
 type TaskListProps = {
   openTask: (task: Task) => void;
+  openConfirmBox: (question: string, action: () => void | Promise<void>) => void;
 }
 
-export const TaskList = ({ openTask }: TaskListProps) => {
-  const { tasks, createTask, updateTask } = useTasks();
+export const TaskList = ({ openTask, openConfirmBox }: TaskListProps) => {
+  const { tasks, createTask, updateTask, deleteTask } = useTasks();
   const [taskInput, setTaskInput] = useState<string>("");
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
 
@@ -50,6 +52,12 @@ export const TaskList = ({ openTask }: TaskListProps) => {
     openTask(task);
   }
 
+  const handleAskToDeleteTask = (task: Task) => {
+    openConfirmBox(`Are you sure you want to delete this task?`, () => {
+      deleteTask(task.id);
+    });
+  }
+
   return (
     <ul className="w-full max-w-96 h-auto flex flex-col justify-center items-center overflow-hidden rounded-lg border border-black">
       {
@@ -59,7 +67,10 @@ export const TaskList = ({ openTask }: TaskListProps) => {
               tasks[index] ? (
                 <div className="relative w-full h-16 flex flex-row justify-center items-center">
                   <button onClick={() => {handleUpdateTaskStatus(tasks[index])}} className={twMerge('absolute left-0 w-4 h-4 rounded-full hover:scale-110', StatusColor[tasks[index].status])}></button>
-                  <span className="absolute left-6 w-4/5 truncate">{tasks[index].title}</span>
+                  <span className="absolute left-6 w-[78%] truncate">{tasks[index].title}</span>
+                  <button className="absolute right-7 hover:scale-110" onClick={() => {handleAskToDeleteTask(tasks[index])}}>
+                    <BsTrash className="text-lg"/>
+                  </button>
                   <button className="absolute right-0 hover:scale-110" onClick={() => {handleOpenTaskOnModal(tasks[index])}}>
                     <BiFullscreen className="text-xl"/>
                   </button>
@@ -73,6 +84,7 @@ export const TaskList = ({ openTask }: TaskListProps) => {
                     onChange={(e) => setTaskInput(e.target.value)}
                     onInput={handleTaskInput}
                     value={focusedIndex === index ? taskInput : ""}
+                    maxLength={30}
                     className="w-full bg-white focus:outline-none"
                   ></input>
                   {

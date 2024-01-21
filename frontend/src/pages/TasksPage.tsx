@@ -9,6 +9,7 @@ import { TaskModal } from "../components/TaskModal/TaskModal";
 import { StatusCaption } from "../components/StatusCaption/StatusCaption";
 import { MdOutlineKeyboardArrowUp, MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { IoMdExit } from "react-icons/io";
+import { ConfirmBox } from "../components/ConfirmBox/ConfirmBox";
 
 const TasksPage = () => {
   const { isAuthenticated, signOut } = useAuth();
@@ -26,6 +27,22 @@ const TasksPage = () => {
   const handleCloseModal = () => {
     setModalTask(undefined);
     setModalOpened(false);
+  };
+
+  const [confirmBoxQuestion, setConfirmBoxQuestion] = useState<string>('');
+  const [confirmBoxAction, setConfirmBoxAction] = useState<(() => void | Promise<void>) | null>(null);
+  const [confirmBoxOpened, setConfirmBoxOpened] = useState<boolean>(false);
+
+  const handleOpenConfirmBox = (question: string, action: () => void | Promise<void>) => {
+    setConfirmBoxQuestion(question);
+    setConfirmBoxAction(() => action);
+    setConfirmBoxOpened(true);
+  };
+
+  const handleCloseConfirmBox = () => {
+    setConfirmBoxQuestion('');
+    setConfirmBoxAction(null);
+    setConfirmBoxOpened(false);
   };
 
   useEffect(() => {
@@ -58,11 +75,16 @@ const TasksPage = () => {
           }
         </div>
         <StatusCaption className="mb-3"/>
-        <TaskList openTask={handleOpenModal}/>
+        <TaskList openTask={handleOpenModal} openConfirmBox={handleOpenConfirmBox}/>
         <TaskPaginator/>
         {
-          modalOpened && modalTask !== undefined ? (
+          modalOpened && modalTask ? (
             <TaskModal task={modalTask} onClose={handleCloseModal}/>
+          ) : <></>
+        }
+        {
+          confirmBoxOpened && confirmBoxQuestion ? (
+            <ConfirmBox question={confirmBoxQuestion} action={confirmBoxAction!} onClose={handleCloseConfirmBox}/>
           ) : <></>
         }
       </main>

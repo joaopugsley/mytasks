@@ -12,6 +12,7 @@ type TaskContextData = {
   loadTasks: () => Promise<void>;
   createTask: (title: string) => Promise<void>;
   updateTask: (id: number, differences: TaskDifferences) => Promise<void>;
+  deleteTask: (id: number) => Promise<void>;
   nextPage: () => Promise<void>;
   prevPage: () => Promise<void>;
 }
@@ -87,6 +88,19 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const deleteTask = async (id: number) => {
+    try {
+      await api.delete(`/api/tasks/${id}`);
+      await loadTasks();
+    } catch(error) {
+      console.error('Error while deleting task:', error);
+      const err = error as AxiosError;
+      if(err.response && err.response.status == 401) {
+        signOut();
+      }
+    }
+  }
+
   const nextPage = async () => {
     if (page >= maxPages) {
       if (tasks.length === PAGE_ITEMS) {
@@ -123,6 +137,7 @@ export const TaskProvider = ({ children }: { children: ReactNode }) => {
         loadTasks,
         createTask,
         updateTask,
+        deleteTask,
         prevPage,
         nextPage,
       }}
