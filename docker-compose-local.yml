@@ -48,12 +48,18 @@ services:
     build:
       context: ./frontend
       dockerfile: local.Dockerfile
+    restart: always
     env_file:
       - .env.local
     networks:
       - mytasks
     ports:
       - "3000:3000"
+    healthcheck:
+      test: wget -qO- localhost:3000 &> /dev/null
+      interval: 2s
+      timeout: 5s
+      retries: 50
     volumes:
       - ./frontend:/app
       - .env.local:/app/.env.local
