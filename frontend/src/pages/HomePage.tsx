@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../contexts/auth";
+import { useAuth } from "../hooks/useAuth";
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth();

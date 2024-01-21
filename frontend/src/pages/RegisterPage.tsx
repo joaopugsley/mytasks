@@ -3,8 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { GoEye, GoEyeClosed } from "react-icons/go";
 import { Button } from "../components/Button/Button";
 import { AxiosError } from "axios";
-import { api } from "../services/api";
-import { useAuth } from "../contexts/auth";
+import { api } from "../lib/api";
+import { useAuth } from "../hooks/useAuth";
 import { extractNestErrorMessage } from "../utils/extractNestErrorMessage";
 
 type RegisterAPIResponse = {
@@ -114,7 +114,7 @@ const RegisterPage = () => {
               }
             </button>
           </div>
-          <Button type='submit' disabled={isLoading}>
+          <Button type='submit' disabled={isLoading} className="mt-3">
             {isLoading ? "Creating your account..." : "Create your Account!"}
           </Button>
         </form>

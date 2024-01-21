@@ -2,7 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { GoEye, GoEyeClosed } from "react-icons/go";
 import { Button } from "../components/Button/Button";
-import { useAuth } from "../contexts/auth";
+import { useAuth } from "../hooks/useAuth";
 import { AxiosError } from "axios";
 import { extractNestErrorMessage } from "../utils/extractNestErrorMessage";
 
@@ -92,7 +92,7 @@ const LoginPage = () => {
               }
             </button>
           </div>
-          <Button type='submit' disabled={isLoading}>
+          <Button type='submit' disabled={isLoading} className="mt-3">
             {isLoading ? "Signing you in..." : "Sign in"}
           </Button>
         </form>
