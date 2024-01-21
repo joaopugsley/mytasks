@@ -1,0 +1,4 @@
+pandas
+pyarrow
+mysql-connector-python
+python-dotenv
