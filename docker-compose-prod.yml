@@ -1,0 +1,82 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:8.1
+    environment:
+      TZ: 'America/Sao_Paulo'
+      PGTZ: 'America/Sao_Paulo'
+    restart: always
+    container_name: database
+    env_file:
+      - .env
+    volumes:
+      - mytasks_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - mytasks
+    healthcheck:
+      test: ["CMD", "mysql", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}", "--execute", "SHOW DATABASES;"]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    networks:
+      - mytasks
+    ports:
+      - "5000:5000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    links:
+      - mysql:mysql
+    volumes:
+      - ./backend:/app
+      - .env:/app/.env
+    entrypoint:
+      [
+        "npm",
+        "run",
+        "migrate:prod",
+      ]
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - mytasks
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: wget -qO- localhost:3000 &> /dev/null
+      interval: 2s
+      timeout: 5s
+      retries: 50
+    volumes:
+      - ./frontend:/app
+      - .env:/app/.env
+    entrypoint:
+      [
+        "npm",
+        "run",
+        "preview",
+      ]
+
+networks:
+  mytasks:
+    driver: bridge
+
+volumes:
+  mytasks_data:
+    external: true

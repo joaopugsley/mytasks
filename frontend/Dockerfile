@@ -16,8 +16,11 @@ RUN npm install
 # copy the rest of the application code to the working directory
 COPY . .
 
-# expose the port 5000
-EXPOSE 5000
+# expose the port 3000
+EXPOSE 3000
 
-# run the migrations via command-line
-ENTRYPOINT ["npm", "run", "migrate:dev"]
+# build the application for production
+RUN npm run build
+
+# run the application via command-line
+ENTRYPOINT ["npm", "run", "preview"]

@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 5000
 
 # run the migrations via command-line
-ENTRYPOINT ["npm", "run", "migrate:dev"]
+ENTRYPOINT ["npm", "run", "migrate:prod"]
